@@ -4,15 +4,37 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "tsx ./build.ts",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "eslint --ext js,ts src",
+    "lint:fix": "eslint --ext js,ts src --fix",
+    "format": "prettier src --check",
+    "format:fix": "prettier src --write",
+    "publint": "publint",
+    "prepack": "npm run build",
+    "release": "np"
   },
+  "files": [
+    "package.json",
+    "dist/cli.mjs"
+  ],
+  "bin": "./dist/cli.mjs",
   "author": "Yusuke Wada",
   "license": "MIT",
   "dependencies": {
     "@hono/node-server": "^1.13.7",
-    "commander": "^13.0.0"
+    "arg": "^5.0.2",
+    "esbuild": "^0.24.2"
   },
   "devDependencies": {
-    "@types/node": "^22.10.5"
+    "@hono/eslint-config": "^1.0.2",
+    "@types/node": "^22.10.5",
+    "@types/yargs": "^17.0.33",
+    "eslint": "^9.17.0",
+    "np": "^10.1.0",
+    "prettier": "^3.4.2",
+    "publint": "^0.2.12",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2"
   }
 }

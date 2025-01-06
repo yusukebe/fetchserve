@@ -1,14 +1,21 @@
-import { Command } from 'commander'
 import { createAdaptorServer } from '@hono/node-server'
-import { resolve } from 'node:path'
+import arg from 'arg'
+import * as esbuild from 'esbuild'
+import { tmpdir } from 'node:os'
+import { resolve, join } from 'node:path'
 
-const program = new Command()
+const argv = arg(
+  {
+    '--port': Number,
+    '-p': '--port',
+  },
+  {
+    argv: process.argv,
+  },
+)
 
-program.option('-p, --port <number>').argument('<string>')
-program.parse()
-
-const options = program.opts()
-const filename = program.args[0]
+const filename = argv['_'][2]
+const port = argv['--port'] ?? 3000
 
 type ServeOption = {
   port: number
@@ -16,16 +23,31 @@ type ServeOption = {
 
 const serveWithFilename = async (filename: string, options: ServeOption) => {
   const fullPath = resolve(process.cwd(), filename)
-  const module = await import(fullPath)
+  const tempFile = join(tmpdir(), `fetchserve-${Date.now()}.mjs`)
+
+  const esbuildOption: esbuild.BuildOptions = {
+    entryPoints: [fullPath],
+    outfile: tempFile,
+    format: 'esm',
+  }
+
+  await esbuild.build(esbuildOption)
+
+  const module = await import(tempFile)
+
+  const ctx = await esbuild.context(esbuildOption)
+  await ctx.watch()
+
   const app = module['default']
   const server = createAdaptorServer({
-    fetch: app.fetch
+    fetch: app.fetch,
   })
+
   server.listen(options.port, () => {
-    console.log(`Listening on http://localhost:${options.port.toString()}`)
+    console.log(`Listening on http://localhost:${options.port}`)
   })
 }
 
 serveWithFilename(filename, {
-  port: !!options.port ? Number(options.port) : 3000
+  port,
 })

@@ -1,2 +1,4 @@
 node_modules
 sandbox
+bin
+dist
