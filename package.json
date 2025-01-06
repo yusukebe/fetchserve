@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "build": "tsx ./build.ts",
+    "test": "echo \"Error: no test specified\"",
     "lint": "eslint --ext js,ts src",
     "lint:fix": "eslint --ext js,ts src --fix",
     "format": "prettier src --check",
